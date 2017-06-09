@@ -46,7 +46,8 @@ module ValidatesEmailFormatOf
                           :domain_length => 255,
                           :local_length => 64,
                           :generate_message => false,
-                          :strict => true
+                          :strict => true,
+                          :allow_comma => true,
                           }
       opts = options.merge(default_options) {|key, old, new| old}  # merge the default options into the specified options, retaining all specified options
 
@@ -72,7 +73,7 @@ module ValidatesEmailFormatOf
       if opts.has_key?(:with) # holdover from versions <= 1.4.7
         return [ opts[:message] ] unless email =~ opts[:with]
       else
-        return [ opts[:message] ] unless self.validate_local_part_syntax(local, opts[:strict]) and self.validate_domain_part_syntax(domain)
+        return [ opts[:message] ] unless self.validate_local_part_syntax(local, strict: opts[:strict], allow_comma: opts[:allow_comma]) and self.validate_domain_part_syntax(domain)
       end
 
       if opts[:check_mx] and !self.validate_email_domain(email)
@@ -83,7 +84,7 @@ module ValidatesEmailFormatOf
   end
 
 
-  def self.validate_local_part_syntax(local, strict=true)
+  def self.validate_local_part_syntax(local, strict: true, allow_comma: true)
     in_quoted_pair = false
     in_quoted_string = false
 
@@ -111,6 +112,14 @@ module ValidatesEmailFormatOf
 
       next if local[i,1] =~ /[a-z0-9]/i
       next if local[i,1] =~ LocalPartSpecialChars
+
+      # for compatibility
+      # comma is not allowed unless allow_comma is true
+      if ord == 44
+        return false unless in_quoted_string || allow_comma
+        next
+      end
+
       next unless strict
 
       # period must be followed by something
