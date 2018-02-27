@@ -46,7 +46,7 @@ module ValidatesEmailFormatOf
                           :domain_length => 255,
                           :local_length => 64,
                           :generate_message => false,
-                          :allow_japanese_mobile_carrier => false,
+                          :allow_jp_mobile_carrier_format => false,
                           }
       opts = options.merge(default_options) {|key, old, new| old}  # merge the default options into the specified options, retaining all specified options
 
@@ -70,7 +70,7 @@ module ValidatesEmailFormatOf
       if opts.has_key?(:with) # holdover from versions <= 1.4.7
         return [ opts[:message] ] unless email =~ opts[:with]
       else
-        return [ opts[:message] ] unless self.validate_local_part_syntax(local, allow_japanese_mobile_carrier: opts[:allow_japanese_mobile_carrier]) and self.validate_domain_part_syntax(domain)
+        return [ opts[:message] ] unless self.validate_local_part_syntax(local, allow_jp_mobile_carrier_format: opts[:allow_jp_mobile_carrier_format]) and self.validate_domain_part_syntax(domain)
       end
 
       if opts[:check_mx] and !self.validate_email_domain(email)
@@ -81,7 +81,7 @@ module ValidatesEmailFormatOf
   end
 
 
-  def self.validate_local_part_syntax(local, allow_japanese_mobile_carrier: false)
+  def self.validate_local_part_syntax(local, allow_jp_mobile_carrier_format: false)
     in_quoted_pair = false
     in_quoted_string = false
 
@@ -112,8 +112,8 @@ module ValidatesEmailFormatOf
 
       # period must be followed by something
       if ord == 46
-        return false if i == 0 or (!allow_japanese_mobile_carrier and i == local.length - 1) # can't be first or last char
-        next unless !allow_japanese_mobile_carrier and local[i+1].ord == 46 # can't be followed by a period
+        return false if i == 0 or (!allow_jp_mobile_carrier_format and i == local.length - 1) # can't be first or last char
+        next unless !allow_jp_mobile_carrier_format and local[i+1].ord == 46 # can't be followed by a period
       end
 
       return false

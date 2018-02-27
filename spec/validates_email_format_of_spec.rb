@@ -161,7 +161,7 @@ describe ValidatesEmailFormatOf do
         it_should_behave_like :domain_length_limit, 100
       end
     end
-    describe "allow_japanese_mobile_carrier" do
+    describe "allow_jp_mobile_carrier_format" do
       describe "when using default" do
         describe "foo..bar@example.com" do
           it { should have_errors_on_email.because("does not appear to be a valid e-mail address") }
@@ -171,7 +171,7 @@ describe ValidatesEmailFormatOf do
         end
       end
       describe "when overriding defaults" do
-        let(:options) { { :allow_japanese_mobile_carrier => true } }
+        let(:options) { { :allow_jp_mobile_carrier_format => true } }
         describe "foo..bar@example.com" do
           it { should_not have_errors_on_email }
         end
